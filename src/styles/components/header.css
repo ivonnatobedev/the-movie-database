@@ -2,4 +2,7 @@ header {
     color: #1cd963;
     background-color: #000;
     padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    z-index: 777;
 }

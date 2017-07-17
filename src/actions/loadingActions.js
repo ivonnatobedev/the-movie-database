@@ -1,13 +1,13 @@
 import * as types from "../constants/actionTypes";
 
-export function startLoading() {
+export const startLoading = () => {
   return {
     type: types.START_LOADING
   };
-}
+};
 
-export function stopLoading() {
+export const stopLoading = () => {
   return {
     type: types.STOP_LOADING
   }
-}
+};

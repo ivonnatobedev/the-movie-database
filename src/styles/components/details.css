@@ -1,0 +1,13 @@
+.details .label {
+    margin-right: 5px;
+    color: #1cd963;
+    background-color: #000;
+}
+
+.details .list-inline img {
+    margin: 5px 0;
+}
+
+.details .movie-overview {
+    margin: 5px 0;
+}

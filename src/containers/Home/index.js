@@ -5,6 +5,8 @@ import PopularList from "./components/PopularList";
 import UpcomingReleasesList from "./components/UpcomingReleasesList";
 import { connect } from "react-redux";
 import * as moviesActions from "../../actions/moviesActions";
+import compareGenresToMovie from "../../utils/compareGenresToMovies";
+import PropTypes from "prop-types";
 
 class Home extends Component {
 
@@ -19,6 +21,10 @@ class Home extends Component {
     if(!upcomingList.length) {
       getUpcomingAsync(1);
     }
+  }
+
+  componentWillUnmount() {
+    this.props.clearSearchResult();
   }
 
   render() {
@@ -45,61 +51,28 @@ class Home extends Component {
   }
 }
 
+Home.propTypes = {
+  searchList: PropTypes.array,
+  genresList: PropTypes.array,
+  popularMoviesList: PropTypes.object,
+  upcomingList: PropTypes.object,
+  searchMoviesAsync: PropTypes.func,
+  clearSearchResult: PropTypes.func,
+  getGenresAsync: PropTypes.func,
+  getPopularMoviesAsync: PropTypes.func,
+  getUpcomingAsync: PropTypes.func
+};
+
 const mapStateToProps = state => {
   const genresList = state.movies.genresList;
-
-  let searchList = state.movies.searchList.map(movie => {
-    let genres = [];
-    movie.genre_ids.forEach(genre => {
-      let gnr = genresList.find(gen => genre === gen.id);
-      if(gnr) {
-        genres.push(gnr);
-      }
-    });
-    return {
-      ...movie,
-      ...{
-        genres: genres
-      }
-    };
-  });
-
   let popularList = [];
-  if(state.movies.popularMoviesList.results && genresList.length) {
-    popularList = state.movies.popularMoviesList.results.map(movie => {
-      let genres = [];
-      movie.genre_ids.forEach(genre => {
-        let gnr = genresList.find(gen => genre === gen.id);
-        if(gnr) {
-          genres.push(gnr);
-        }
-      });
-      return {
-        ...movie,
-        ...{
-          genres: genres
-        }
-      };
-    });
-  }
-
   let upcomingList = [];
+  let searchList = compareGenresToMovie(genresList, state.movies.searchList);
+  if(state.movies.popularMoviesList.results && genresList.length) {
+    popularList = compareGenresToMovie(genresList, state.movies.popularMoviesList.results);
+  }
   if(state.movies.upcomingList.results && genresList.length) {
-    upcomingList = state.movies.upcomingList.results.map(movie => {
-      let genres = [];
-      movie.genre_ids.forEach(genre => {
-        let gnr = genresList.find(gen => genre === gen.id);
-        if(gnr) {
-          genres.push(gnr);
-        }
-      });
-      return {
-        ...movie,
-        ...{
-          genres: genres
-        }
-      };
-    });
+    upcomingList = compareGenresToMovie(genresList, state.movies.upcomingList.results);
   }
 
   return {

@@ -4,6 +4,7 @@ import { Route, Switch } from "react-router";
 import Home from "../Home";
 import Details from "../Details";
 import LoadingBar from "../LoadingBar";
+import ReduxToastr from "react-redux-toastr";
 
 class Main extends Component {
   render() {
@@ -17,6 +18,12 @@ class Main extends Component {
             <Route path="/:id" component={Details}/>
           </Switch>
         </div>
+        <ReduxToastr
+          preventDuplicates
+          position="bottom-right"
+          transitionIn="fadeIn"
+          transitionOut="fadeOut"
+        />
       </main>
     );
   }

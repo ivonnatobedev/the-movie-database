@@ -5,13 +5,13 @@ import { debounce } from "../../../utils/network";
 
 const SearchBar = ({searchMoviesAsync, clearSearchResult}) => {
 
-  function searchHandler(e) {
+  const searchHandler = e => {
     if(e.target.value !== "") {
       debounce(searchMoviesAsync(e.target.value))
     } else {
       clearSearchResult();
     }
-  }
+  };
 
   return (
     <Row className="search-bar">

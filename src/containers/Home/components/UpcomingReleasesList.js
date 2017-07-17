@@ -4,9 +4,9 @@ import MovieListItem from "./MovieListItem";
 
 const UpcomingReleases = ({upcomingList, getUpcomingAsync}) => {
 
-  function paginationHandler(eventKey) {
+  const paginationHandler = eventKey => {
     getUpcomingAsync(eventKey);
-  }
+  };
 
   return (
     <section className="popular-list">

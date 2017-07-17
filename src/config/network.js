@@ -2,6 +2,7 @@ import axios from "axios";
 import constant from "./config";
 import { startLoading, stopLoading } from "../actions/loadingActions";
 import store from "../store";
+import { toastr } from "react-redux-toastr";
 
 axios.defaults.baseURL = constant.API_HOST;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -20,6 +21,7 @@ axios.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
   store.dispatch(stopLoading());
+  toastr.error(error.response.statusText);
   return Promise.reject(error);
 });
 

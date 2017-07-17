@@ -2,35 +2,26 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import CollectionMoviesList from "./components/CollectionMoviesList";
 import DetailsComponent from "./components/DetailsComponent";
-import RecommendedmoviesList from "./components/RecommendedMoviesList";
-import { getMovieDetailsAsync, closeMovieDetails, getMovieCollectionAsync, getRecommendationsAsync, getGenresAsync } from "../../actions/moviesActions";
+import RecommendedMoviesList from "./components/RecommendedMoviesList";
+import { closeMovieDetails, getRecommendationsAsync, getGenresAsync, getAllMovieDetails } from "../../actions/moviesActions";
+import compareGenresToMovie from "../../utils/compareGenresToMovies";
+import PropTypes from "prop-types";
 
 class Details extends Component{
 
   componentDidMount() {
-    const { getMovieDetailsAsync, match, getMovieCollectionAsync, getRecommendationsAsync, genresList, getGenresAsync } = this.props;
+    const { match, genresList, getGenresAsync, getAllMovieDetails } = this.props;
     if(!genresList.length) {
       getGenresAsync();
     }
-    getMovieDetailsAsync(match.params.id)
-      .then(result => {
-        if(result.belongs_to_collection) {
-          getMovieCollectionAsync(result.belongs_to_collection.id);
-        }
-        getRecommendationsAsync(result.id, 1);
-      });
+    getAllMovieDetails(match.params.id, 1);
   }
 
   componentWillReceiveProps(nextProps) {
     if(nextProps.match.params.id !== this.props.match.params.id) {
-      const { getMovieDetailsAsync, getMovieCollectionAsync, getRecommendationsAsync } = this.props;
-      getMovieDetailsAsync(nextProps.match.params.id)
-        .then(result => {
-          if(result.belongs_to_collection) {
-            getMovieCollectionAsync(result.belongs_to_collection.id);
-          }
-          getRecommendationsAsync(result.id, 1);
-        });
+      const { getAllMovieDetails } = this.props;
+      this.props.closeMovieDetails();
+      getAllMovieDetails(nextProps.match.params.id, 1);
     }
   }
 
@@ -39,17 +30,17 @@ class Details extends Component{
   }
 
   render() {
-    const { movieDetails, collectionList, movieRecommendationsList, getRecommendationsAsync } = this.props;
-    console.log("DETAILS", movieDetails);
-    console.log("COLLECTION", collectionList);
-    console.log("RECOMMENDATIONS", movieRecommendationsList);
+    const { movieDetails, collectionList, movieRecommendationsList, getRecommendationsAsync, movieCredits } = this.props;
     return (
       <div>
-        <DetailsComponent/>
+        <DetailsComponent
+          movieDetails={movieDetails}
+          movieCredits={movieCredits}
+        />
         <CollectionMoviesList
           collectionList={collectionList}
         />
-        <RecommendedmoviesList
+        <RecommendedMoviesList
           recommendedMoviesList={movieRecommendationsList}
           getRecommendedAsync={getRecommendationsAsync}
         />
@@ -58,45 +49,28 @@ class Details extends Component{
   }
 }
 
+Details.propTypes = {
+  movieDetails: PropTypes.object,
+  collectionList: PropTypes.array,
+  genresList: PropTypes.array,
+  movieRecommendationsList: PropTypes.object,
+  movieCredits: PropTypes.object,
+  closeMovieDetails: PropTypes.func,
+  getRecommendationsAsync: PropTypes.func,
+  getAllMovieDetails: PropTypes.func,
+  getGenresAsync: PropTypes.func
+};
+
 const mapStateToProps = state => {
   let collectionList = [];
   let recommendationList = [];
   const genresList = state.movies.genresList;
   if(state.movies.movieCollection.parts && genresList.length) {
-    collectionList = state.movies.movieCollection.parts.map(movie => {
-      let genres = [];
-      movie.genre_ids.forEach(genre => {
-        let gnr = genresList.find(gen => genre === gen.id);
-        if(gnr) {
-          genres.push(gnr);
-        }
-      });
-      return {
-        ...movie,
-        ...{
-          genres: genres
-        }
-      };
-    });
+    collectionList = compareGenresToMovie(genresList, state.movies.movieCollection.parts);
   }
   if(state.movies.movieRecommendationsList.results && genresList.length) {
-    recommendationList = state.movies.movieRecommendationsList.results.map(movie => {
-      let genres = [];
-      movie.genre_ids.forEach(genre => {
-        let gnr = genresList.find(gen => genre === gen.id);
-        if(gnr) {
-          genres.push(gnr);
-        }
-      });
-      return {
-        ...movie,
-        ...{
-          genres: genres
-        }
-      };
-    });
+    recommendationList = compareGenresToMovie(genresList, state.movies.movieRecommendationsList.results);
   }
-
 
   return {
     movieDetails: state.movies.movieDetails,
@@ -107,16 +81,16 @@ const mapStateToProps = state => {
       ...{
         results: recommendationList
       }
-    }
+    },
+    movieCredits: state.movies.movieCredits
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    getMovieDetailsAsync: (id) => dispatch(getMovieDetailsAsync(id)),
-    closeMovieDetails: () => dispatch(closeMovieDetails),
-    getMovieCollectionAsync: (id) => dispatch(getMovieCollectionAsync(id)),
+    closeMovieDetails: () => dispatch(closeMovieDetails()),
     getRecommendationsAsync: (id, page) => dispatch(getRecommendationsAsync(id, page)),
+    getAllMovieDetails: (id, page) => dispatch(getAllMovieDetails(id, page)),
     getGenresAsync: () => dispatch(getGenresAsync())
   };
 };

@@ -34,7 +34,6 @@ const MovieListItem = ({movie}) => {
               {movie.vote_average}&nbsp;
               <i className="fa fa-star"/>
             </Col>
-
           </Row>
           <Row>
             <Col md={12}>

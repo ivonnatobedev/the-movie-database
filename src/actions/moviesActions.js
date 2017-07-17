@@ -2,66 +2,66 @@ import * as types from "../constants/actionTypes";
 import axios from "../config/network";
 import config from "../config/config";
 
-function searchMovies(list) {
+const searchMovies = list => {
   return {
     type: types.SEARCH_MOVIES,
     payload: list
   };
-}
+};
 
-export function clearSearchResult() {
+export const clearSearchResult = () => {
   return {
     type: types.CLEAR_SEARCH_RESULT
   };
-}
+};
 
-function getGenres(list) {
+const getGenres = list => {
   return {
     type: types.GET_ALL_GENRES,
     payload: list
   };
-}
+};
 
-function getPopularMovies(list) {
+const getPopularMovies = list => {
   return {
     type: types.GET_POPULAR_MOVIES,
     payload: list
   };
-}
+};
 
-function getUpcoming(list) {
+const getUpcoming = list => {
   return {
     type: types.GET_UPCOMING,
     payload: list
   };
-}
+};
 
-function openMovieDetails(movie) {
+const openMovieDetails = movie => {
   return {
     type: types.OPEN_MOVIE_DETAILS,
     payload: movie
   };
-}
+};
 
-export function closeMovieDetails() {
+export const closeMovieDetails = () => {
   return {
     type: types.CLOSE_MOVIE_DETAILS
   };
-}
+};
 
-function getMovieCollection(collection) {
+const getMovieCollection = collection => {
   return {
     type: types.GET_MOVIE_COLLECTION,
     payload: collection
   };
-}
+};
 
-function getRecommendations(recommendations) {
+const getRecommendations = recommendations => {
   return {
     type: types.GET_RECOMMENDATIONS,
     payload: recommendations
   };
-}
+};
 
 const getMovieCredits = credits => {
   return {
@@ -70,7 +70,7 @@ const getMovieCredits = credits => {
   };
 };
 
-export function searchMoviesAsync(query) {
+export const searchMoviesAsync = query => {
   return dispatch => {
     axios.get(`search/movie?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}&query=${query}`)
       .then(result => {
@@ -80,9 +80,9 @@ export function searchMoviesAsync(query) {
         console.log("ERROR", err);
       });
   };
-}
+};
 
-export function getGenresAsync() {
+export const getGenresAsync = () => {
   return dispatch => {
     axios.get(`genre/list?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}`)
       .then(result => {
@@ -92,9 +92,9 @@ export function getGenresAsync() {
         console.log("ERROR", e);
       });
   };
-}
+};
 
-export function getPopularMoviesAsync(page) {
+export const getPopularMoviesAsync = page => {
   return dispatch => {
     axios.get(`movie/popular?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}&page=${page}`)
       .then(result => {
@@ -104,9 +104,9 @@ export function getPopularMoviesAsync(page) {
         console.log("ERROR", e);
       });
   };
-}
+};
 
-export function getUpcomingAsync(page) {
+export const getUpcomingAsync = page => {
   return dispatch => {
     axios.get(`movie/upcoming?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}&page=${page}`)
       .then(result => {
@@ -116,22 +116,9 @@ export function getUpcomingAsync(page) {
         console.log("ERROR", e);
       });
   };
-}
+};
 
-export function getMovieDetailsAsync(id) {
-  return dispatch => {
-    return axios.get(`movie/${id}?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}`)
-     .then(result => {
-       dispatch(openMovieDetails(result.data));
-       return result.data;
-     })
-     .catch(e => {
-       console.log("ERROR", e);
-     });
-  };
-}
-
-export function getMovieCollectionAsync(id) {
+export const getMovieCollectionAsync = id => {
   return dispatch => {
     axios.get(`collection/${id}?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}`)
       .then(result => {
@@ -141,9 +128,9 @@ export function getMovieCollectionAsync(id) {
         console.log("ERROR", e);
       });
   };
-}
+};
 
-export function getRecommendationsAsync(id, page) {
+export const getRecommendationsAsync = (id, page) => {
   return dispatch => {
     axios.get(`movie/${id}/recommendations?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}$page=${page}`)
     .then(result => {
@@ -153,14 +140,23 @@ export function getRecommendationsAsync(id, page) {
       console.log("ERROR", e);
     });
   };
-}
+};
 
-export const getMovieCreditsAsync = id => {
+export const getAllMovieDetails = (id, page) => {
   return dispatch => {
-    axios.get(`movie/${id}/credits?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}`)
-      .then(result => {
-        dispatch(getMovieCredits(result.data));
-      })
+    axios.all([
+      axios.get(`movie/${id}?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}`),
+      axios.get(`movie/${id}/credits?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}`),
+      axios.get(`movie/${id}/recommendations?api_key=${process.env.REACT_APP_API_KEY}&language=${config.data_language}$page=${page}`)
+    ])
+      .then(axios.spread(function (...args) {
+        dispatch(openMovieDetails(args[0].data));
+        dispatch(getMovieCredits(args[1].data));
+        dispatch(getRecommendations(args[2].data));
+        if(args[0].data.belongs_to_collection) {
+          dispatch(getMovieCollectionAsync(args[0].data.belongs_to_collection.id));
+        }
+      }))
       .catch(e => {
         console.log("ERROR", e);
       });
