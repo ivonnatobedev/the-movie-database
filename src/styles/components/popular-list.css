@@ -1,0 +1,10 @@
+.popular-list .panel-body {
+    height: 700px;
+    overflow: scroll;
+}
+
+.popular-list .panel-heading {
+    color: #1cd963;
+    background-color: #000;
+    font-size: 1.2em;
+}

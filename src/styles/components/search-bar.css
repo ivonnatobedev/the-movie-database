@@ -1,0 +1,16 @@
+.search-bar {
+    margin: 10px 0;
+}
+
+.search-bar .form-group {
+    margin: 0;
+}
+
+.search-bar .col-md-12 {
+    padding: 0;
+}
+
+.search-bar .input-group-addon {
+    color: #1cd963;
+    background-color: #000;
+}

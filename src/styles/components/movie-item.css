@@ -1,0 +1,29 @@
+.movie-preview > .row {
+    border: 1px solid #d5d5d5;
+
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    margin: 5px 0;
+}
+
+.movie-preview .label {
+    margin-right: 5px;
+    font-size: 0.6em;
+    color: #1cd963;
+    background-color: #000;
+}
+
+.movie-preview h3 {
+    margin-top: 0;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.movie-overview {
+    font-size: 0.8em;
+}
+
+.movie-preview a {
+    color: #1cd963;
+    background-color: #000;
+}
